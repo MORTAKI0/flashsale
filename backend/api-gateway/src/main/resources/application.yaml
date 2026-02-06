@@ -1,0 +1,44 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/flashsale
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            corsConfigurations:
+              '[/**]':
+                allowedOrigins:
+                  - "http://localhost:4200"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                exposedHeaders:
+                  - Authorization
+                allowCredentials: true
+          routes:
+            - id: test-httpbin
+              uri: https://httpbin.org
+              predicates:
+                - Path=/test/**
+              filters:
+                - RewritePath=/test/(?<segment>.*), /${segment}
+            - id: tenant-directory
+              uri: http://localhost:8081
+              predicates:
+                - Path=/tenant-directory/**
+              filters:
+                - StripPrefix=1
