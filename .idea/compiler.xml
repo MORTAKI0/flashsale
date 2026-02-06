@@ -11,12 +11,14 @@
         </processorPath>
         <module name="tenant-directory" />
         <module name="api-gateway" />
+        <module name="catalog-service" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
+      <module name="catalog-service" options="-parameters" />
       <module name="tenant-directory" options="-parameters" />
     </option>
   </component>

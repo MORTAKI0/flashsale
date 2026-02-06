@@ -42,3 +42,7 @@ spring:
                 - Path=/tenant-directory/**
               filters:
                 - StripPrefix=1
+            - id: catalog-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/catalog/**

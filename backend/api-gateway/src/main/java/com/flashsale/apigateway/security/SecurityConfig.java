@@ -16,6 +16,7 @@ public class SecurityConfig {
         .csrf(ServerHttpSecurity.CsrfSpec::disable)
         .authorizeExchange(ex -> ex
             .pathMatchers("/actuator/**").permitAll()
+            .pathMatchers("/api/public/**").permitAll()
             .anyExchange().authenticated()
         )
         .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}))
