@@ -1,0 +1,58 @@
+<main class="products-page">
+  <h1>Products</h1>
+
+  <form class="products-controls" (ngSubmit)="onSearch()">
+    <label for="product-search">Search</label>
+    <input
+      id="product-search"
+      type="text"
+      name="q"
+      [(ngModel)]="q"
+      placeholder="Search products"
+    />
+    <button type="submit" [disabled]="loading">Search</button>
+
+    <label for="page-size">Page size</label>
+    <select
+      id="page-size"
+      name="size"
+      [ngModel]="size"
+      (ngModelChange)="onPageSizeChange($event)"
+      [disabled]="loading"
+    >
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+    </select>
+  </form>
+
+  <p *ngIf="loading">Loading products...</p>
+
+  <p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+  <p *ngIf="!loading && !error && items.length === 0">No products found.</p>
+
+  <table *ngIf="!loading && !error && items.length > 0" class="products-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Currency</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items">
+        <td>{{ item.name }}</td>
+        <td>{{ formatPrice(item.priceCents) }}</td>
+        <td>{{ item.currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination" *ngIf="!loading && !error">
+    <button type="button" (click)="prevPage()" [disabled]="!hasPrevPage || loading">Prev</button>
+    <span>Page {{ uiPage }} of {{ totalPages || 1 }}</span>
+    <button type="button" (click)="nextPage()" [disabled]="!hasNextPage || loading">Next</button>
+    <span>Total items: {{ totalItems }}</span>
+  </div>
+</main>

@@ -1,0 +1,35 @@
+.products-page {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.products-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.products-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.products-table th,
+.products-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.error {
+  color: #b00020;
+}

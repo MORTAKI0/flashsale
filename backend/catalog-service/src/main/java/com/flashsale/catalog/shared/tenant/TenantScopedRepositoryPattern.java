@@ -1,8 +1,7 @@
 package com.flashsale.catalog.shared.tenant;
 
 /**
- * Lightweight repository pattern for tenant-safe persistence.
- * Every repository method must require tenantId as an explicit parameter.
+ * Base helper contract for tenant-scoped repository operations.
  */
 public interface TenantScopedRepositoryPattern {
 
@@ -10,6 +9,14 @@ public interface TenantScopedRepositoryPattern {
     if (tenantId == null || tenantId.isBlank()) {
       throw new IllegalArgumentException("tenantId is required for repository operations");
     }
-    return tenantId;
+    return tenantId.trim();
+  }
+
+  default void requireTenantMatch(String tenantId, String entityTenantId) {
+    String requiredTenantId = requireTenantId(tenantId);
+    String requiredEntityTenantId = requireTenantId(entityTenantId);
+    if (!requiredTenantId.equals(requiredEntityTenantId)) {
+      throw new IllegalArgumentException("Cross-tenant write is not allowed");
+    }
   }
 }

@@ -29,6 +29,11 @@ public class ApiExceptionHandler {
     return build(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", ex.getMessage(), request);
   }
 
+  @ExceptionHandler(NotFoundException.class)
+  ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex, HttpServletRequest request) {
+    return build(HttpStatus.NOT_FOUND, ex.getCode(), ex.getMessage(), request);
+  }
+
   @ExceptionHandler(Exception.class)
   ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex, HttpServletRequest request) {
     return build(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Unexpected server error", request);
