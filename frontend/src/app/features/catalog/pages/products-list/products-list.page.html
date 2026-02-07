@@ -37,14 +37,12 @@
       <tr>
         <th>Name</th>
         <th>Price</th>
-        <th>Currency</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let item of items">
         <td>{{ item.name }}</td>
-        <td>{{ formatPrice(item.priceCents) }}</td>
-        <td>{{ item.currency }}</td>
+        <td>{{ item.currency }} {{ formatPrice(item.priceCents) }}</td>
       </tr>
     </tbody>
   </table>
