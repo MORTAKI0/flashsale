@@ -2,7 +2,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { PagedResponseDto, ProductDetailDto, ProductSummaryDto } from './catalog.types';
+import {
+  PagedResponseDto,
+  ProductDetailDto,
+  ProductSummaryDto,
+  UpsertProductRequest,
+} from './catalog.types';
 
 export interface WhoAmIResponse {
   tenantId: string;
@@ -40,5 +45,20 @@ export class CatalogApi {
     return this.http.get<ProductDetailDto>(
       `/api/catalog/products/${encodeURIComponent(productId)}`,
     );
+  }
+
+  createProduct(request: UpsertProductRequest): Observable<ProductDetailDto> {
+    return this.http.post<ProductDetailDto>('/api/catalog/products', request);
+  }
+
+  updateProduct(productId: string, request: UpsertProductRequest): Observable<ProductDetailDto> {
+    return this.http.put<ProductDetailDto>(
+      `/api/catalog/products/${encodeURIComponent(productId)}`,
+      request,
+    );
+  }
+
+  deleteProduct(productId: string): Observable<void> {
+    return this.http.delete<void>(`/api/catalog/products/${encodeURIComponent(productId)}`);
   }
 }

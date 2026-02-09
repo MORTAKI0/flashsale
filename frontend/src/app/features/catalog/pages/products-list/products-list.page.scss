@@ -1,7 +1,18 @@
 .products-page {
-  padding: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 24px;
   display: grid;
-  gap: 12px;
+  gap: 16px;
+}
+
+.page-header h1 {
+  margin: 0;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: #4f5965;
 }
 
 .products-controls {
@@ -9,6 +20,42 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  padding: 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+}
+
+.content-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+}
+
+.list-panel,
+.owner-panel {
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.owner-panel h2 {
+  margin: 0 0 4px;
+}
+
+.panel-hint {
+  margin: 0 0 12px;
+  color: #4f5965;
+  font-size: 0.9rem;
+}
+
+.product-form {
+  display: grid;
+  gap: 8px;
+}
+
+.product-form textarea {
+  min-height: 88px;
 }
 
 .products-table {
@@ -23,6 +70,12 @@
   text-align: left;
 }
 
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .pagination {
   display: flex;
   align-items: center;
@@ -32,4 +85,49 @@
 
 .error {
   color: #b00020;
+  margin: 4px 0;
+}
+
+.field-error {
+  color: #b00020;
+  font-size: 0.85rem;
+  margin: -2px 0 2px;
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: #b00020;
+  outline-color: #b00020;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.toast {
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #e5f6ea;
+  color: #0f5c2e;
+}
+
+.toast-error {
+  background: #fde8ec;
+  color: #b00020;
+}
+
+.toast-info {
+  background: #e8f1fd;
+  color: #234f8a;
+}
+
+.danger {
+  border-color: #b00020;
+}
+
+@media (max-width: 960px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
 }
