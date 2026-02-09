@@ -1,5 +1,6 @@
 package com.flashsale.catalog.product.dto;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record ProductDetailDto(
@@ -8,6 +9,8 @@ public record ProductDetailDto(
     String description,
     long priceCents,
     String currency,
-    boolean active
+    boolean active,
+    Instant createdAt,
+    Instant updatedAt
 ) {
 }
