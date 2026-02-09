@@ -39,7 +39,7 @@ public class ProductReadService {
         if (StringUtils.hasText(q)) {
             resultPage = productRepository.searchActiveByTenant(tenantId, q.trim(), pageable);
         } else {
-            resultPage = productRepository.findByTenantIdAndActiveTrue(tenantId, pageable);
+            resultPage = productRepository.findByIdTenantIdAndActiveTrue(tenantId, pageable);
         }
 
         List<ProductSummaryDto> items = resultPage
@@ -60,7 +60,7 @@ public class ProductReadService {
     public ProductDetailDto get(UUID productId) {
         String tenantId = tenantContextAccessor.requiredTenantId();
         ProductEntity entity = productRepository
-                .findByTenantIdAndProductIdAndActiveTrue(tenantId, productId)
+                .findByIdTenantIdAndIdProductIdAndActiveTrue(tenantId, productId)
                 .orElseThrow(() -> new NotFoundException(
                         "PRODUCT_NOT_FOUND",
                         "Product not found: " + productId
@@ -85,7 +85,9 @@ public class ProductReadService {
                 e.getDescription(),
                 e.getPriceCents(),
                 e.getCurrency(),
-                e.isActive()
+                e.isActive(),
+                e.getCreatedAt(),
+                e.getUpdatedAt()
         );
     }
 }

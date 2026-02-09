@@ -9,3 +9,12 @@ Use IntelliJ settings to prevent this:
 - Keep BOM disabled for UTF-8 files
 
 This repository normalizes text files with `.gitattributes`, and Java sources should remain UTF-8 without BOM.
+
+## Tests
+
+Run tests (default):
+- `./mvnw test`
+
+Skip tests locally via CLI only (do not commit this in `pom.xml`):
+- `./mvnw -DskipTests test`
+- `./mvnw -Dmaven.test.skip=true package`
