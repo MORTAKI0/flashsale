@@ -1,0 +1,233 @@
+<main class="products-page">
+  <header class="page-header">
+    <h1>Products</h1>
+    <p class="subtitle">Search and browse catalog products.</p>
+  </header>
+
+  <form class="products-controls" (ngSubmit)="onSearch()" aria-label="Product search controls">
+    <label for="product-search">Search</label>
+    <input
+      id="product-search"
+      type="text"
+      name="q"
+      [(ngModel)]="q"
+      placeholder="Search products"
+    />
+    <button type="submit" [disabled]="loading">Search</button>
+
+    <label for="page-size">Page size</label>
+    <select
+      id="page-size"
+      name="size"
+      [ngModel]="size"
+      (ngModelChange)="onPageSizeChange($event)"
+      [disabled]="loading"
+    >
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="50">50</option>
+    </select>
+  </form>
+
+  <div
+    *ngIf="toastMessage"
+    class="toast"
+    [class.toast-error]="toastKind === 'error'"
+    [class.toast-info]="toastKind === 'info'"
+    role="status"
+    aria-live="polite"
+  >
+    {{ toastMessage }}
+  </div>
+
+  <div class="content-grid">
+    <section class="list-panel">
+      <p *ngIf="loading">Loading products...</p>
+      <p *ngIf="!loading && error" class="error" role="alert">{{ error }}</p>
+      <p *ngIf="!loading && !error && items.length === 0">No products found.</p>
+
+      <table *ngIf="!loading && !error && items.length > 0" class="products-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th *ngIf="canManageProducts">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of items; trackBy: trackByProductId">
+            <td>{{ item.name }}</td>
+            <td>{{ item.currency }} {{ formatPrice(item.priceCents) }}</td>
+            <td *ngIf="canManageProducts" class="actions-cell">
+              <button
+                type="button"
+                (click)="startEdit(item.productId)"
+                [disabled]="loadingEditProductId !== null || updateSubmitting"
+                [attr.aria-label]="'Edit product ' + item.name"
+              >
+                {{ loadingEditProductId === item.productId ? 'Loading...' : 'Edit' }}
+              </button>
+              <ng-container *ngIf="confirmingDeleteProductId === item.productId; else showDeleteButton">
+                <button
+                  type="button"
+                  class="danger"
+                  (click)="confirmDelete(item.productId, item.name)"
+                  [disabled]="deletingProductId === item.productId"
+                  [attr.aria-label]="'Confirm delete for ' + item.name"
+                >
+                  {{ deletingProductId === item.productId ? 'Deleting...' : 'Confirm' }}
+                </button>
+                <button type="button" (click)="cancelDelete()" [disabled]="deletingProductId === item.productId">
+                  Cancel
+                </button>
+              </ng-container>
+              <ng-template #showDeleteButton>
+                <button
+                  type="button"
+                  (click)="requestDelete(item.productId)"
+                  [disabled]="deletingProductId !== null || updateSubmitting"
+                  [attr.aria-label]="'Delete product ' + item.name"
+                >
+                  Delete
+                </button>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" *ngIf="!loading && !error">
+        <button type="button" (click)="prevPage()" [disabled]="!hasPrevPage || loading">Prev</button>
+        <span>Page {{ uiPage }} of {{ totalPages || 1 }}</span>
+        <button type="button" (click)="nextPage()" [disabled]="!hasNextPage || loading">Next</button>
+        <span>Total items: {{ totalItems }}</span>
+      </div>
+    </section>
+
+    <section class="owner-panel" *ngIf="canManageProducts">
+      <h2>{{ editingProductId ? 'Edit Product' : 'Add Product' }}</h2>
+      <p class="panel-hint" *ngIf="editingProductId">Updating product ID: {{ editingProductId }}</p>
+
+      <form *ngIf="!editingProductId; else editModeForm" class="product-form" (ngSubmit)="createProduct()">
+        <label for="create-name">Name</label>
+        <input
+          id="create-name"
+          type="text"
+          name="createName"
+          [(ngModel)]="createForm.name"
+          (blur)="normalizeName('create')"
+          minlength="2"
+          maxlength="200"
+          required
+          [attr.aria-invalid]="createErrors.name ? 'true' : 'false'"
+        />
+        <p class="field-error" *ngIf="createErrors.name">{{ createErrors.name }}</p>
+
+        <label for="create-description">Description</label>
+        <textarea
+          id="create-description"
+          name="createDescription"
+          [(ngModel)]="createForm.description"
+          (blur)="normalizeDescription('create')"
+          maxlength="2000"
+        ></textarea>
+
+        <label for="create-price">Price (cents)</label>
+        <input
+          id="create-price"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          name="createPrice"
+          [(ngModel)]="createForm.priceCentsInput"
+          required
+          [attr.aria-invalid]="createErrors.priceCents ? 'true' : 'false'"
+        />
+        <p class="field-error" *ngIf="createErrors.priceCents">{{ createErrors.priceCents }}</p>
+
+        <label for="create-currency">Currency</label>
+        <input
+          id="create-currency"
+          type="text"
+          name="createCurrency"
+          [(ngModel)]="createForm.currency"
+          (blur)="normalizeCurrency('create')"
+          minlength="3"
+          maxlength="3"
+          required
+          [attr.aria-invalid]="createErrors.currency ? 'true' : 'false'"
+        />
+        <p class="field-error" *ngIf="createErrors.currency">{{ createErrors.currency }}</p>
+
+        <p class="error" *ngIf="createApiError" role="alert">{{ createApiError }}</p>
+        <button type="submit" [disabled]="createSubmitting">
+          {{ createSubmitting ? 'Saving...' : 'Add Product' }}
+        </button>
+      </form>
+
+      <ng-template #editModeForm>
+        <form class="product-form" (ngSubmit)="updateProduct()">
+          <label for="edit-name">Name</label>
+          <input
+            #editNameInput
+            id="edit-name"
+            type="text"
+            name="editName"
+            [(ngModel)]="editForm.name"
+            (blur)="normalizeName('edit')"
+            minlength="2"
+            maxlength="200"
+            required
+            [attr.aria-invalid]="editErrors.name ? 'true' : 'false'"
+          />
+          <p class="field-error" *ngIf="editErrors.name">{{ editErrors.name }}</p>
+
+          <label for="edit-description">Description</label>
+          <textarea
+            id="edit-description"
+            name="editDescription"
+            [(ngModel)]="editForm.description"
+            (blur)="normalizeDescription('edit')"
+            maxlength="2000"
+          ></textarea>
+
+          <label for="edit-price">Price (cents)</label>
+          <input
+            id="edit-price"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            name="editPrice"
+            [(ngModel)]="editForm.priceCentsInput"
+            required
+            [attr.aria-invalid]="editErrors.priceCents ? 'true' : 'false'"
+          />
+          <p class="field-error" *ngIf="editErrors.priceCents">{{ editErrors.priceCents }}</p>
+
+          <label for="edit-currency">Currency</label>
+          <input
+            id="edit-currency"
+            type="text"
+            name="editCurrency"
+            [(ngModel)]="editForm.currency"
+            (blur)="normalizeCurrency('edit')"
+            minlength="3"
+            maxlength="3"
+            required
+            [attr.aria-invalid]="editErrors.currency ? 'true' : 'false'"
+          />
+          <p class="field-error" *ngIf="editErrors.currency">{{ editErrors.currency }}</p>
+
+          <p class="error" *ngIf="editApiError" role="alert">{{ editApiError }}</p>
+
+          <div class="edit-actions">
+            <button type="submit" [disabled]="updateSubmitting">
+              {{ updateSubmitting ? 'Saving...' : 'Save' }}
+            </button>
+            <button type="button" (click)="cancelEdit()" [disabled]="updateSubmitting">Cancel</button>
+          </div>
+        </form>
+      </ng-template>
+    </section>
+  </div>
+</main>
