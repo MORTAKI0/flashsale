@@ -3,6 +3,7 @@ package com.flashsale.catalog.product.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,21 +55,10 @@ public class ProductEntity {
         return id == null ? null : id.getProductId();
     }
 
-    public void setTenantId(String tenantId) {
-        UUID productId = getProductId();
-        this.id = new ProductEntityId(tenantId, productId);
-    }
-
-    public void setProductId(UUID productId) {
-        String tenantId = getTenantId();
-        this.id = new ProductEntityId(tenantId, productId);
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    @PrePersist
+    public void prePersist() {
+        if (id == null || id.getTenantId() == null || id.getProductId() == null) {
+            throw new IllegalStateException("ProductEntity.id must be set (tenantId + productId)");
+        }
     }
 }
